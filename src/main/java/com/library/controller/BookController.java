@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,21 +48,28 @@ public class BookController {
      * Handle book submission
      */
     @PostMapping("/add")
-    public String addBook(@ModelAttribute Book book) {
-        bookService.addBook(book);
-        return "redirect:/books";
+    public String addBook(@ModelAttribute Book book, RedirectAttributes redirectAttributes) {
+        try {
+            bookService.addBook(book);
+            redirectAttributes.addFlashAttribute("successMessage", "Book added successfully!");
+            return "redirect:/books";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/books/add";
+        }
     }
 
     /**
      * Display edit book form
      */
     @GetMapping("/edit/{id}")
-    public String showEditBookForm(@PathVariable Long id, Model model) {
+    public String showEditBookForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Book> book = bookService.getBookById(id);
         if (book.isPresent()) {
             model.addAttribute("book", book.get());
             return "edit-book";
         }
+        redirectAttributes.addFlashAttribute("errorMessage", "Book not found");
         return "redirect:/books";
     }
 
@@ -69,17 +77,28 @@ public class BookController {
      * Handle book update
      */
     @PostMapping("/update/{id}")
-    public String updateBook(@PathVariable Long id, @ModelAttribute Book book) {
-        bookService.updateBook(id, book);
-        return "redirect:/books";
+    public String updateBook(@PathVariable Long id, @ModelAttribute Book book, RedirectAttributes redirectAttributes) {
+        try {
+            bookService.updateBook(id, book);
+            redirectAttributes.addFlashAttribute("successMessage", "Book updated successfully!");
+            return "redirect:/books";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/books/edit/" + id;
+        }
     }
 
     /**
      * Delete a book
      */
-    @GetMapping("/delete/{id}")
-    public String deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
+    @PostMapping("/delete/{id}")
+    public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookService.deleteBook(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Book deleted successfully!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/books";
     }
 

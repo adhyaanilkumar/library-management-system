@@ -70,11 +70,26 @@
         .btn-secondary:hover {
             background: #7f8c8d;
         }
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>➕ Add New Book</h1>
+        
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="message error-message" th:text="${errorMessage}"></div>
+        
         <form th:action="@{/books/add}" th:object="${book}" method="post">
             <div class="form-group">
                 <label for="title">Title *</label>
@@ -104,4 +119,3 @@
     </div>
 </body>
 </html>
-

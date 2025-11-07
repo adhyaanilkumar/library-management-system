@@ -73,6 +73,14 @@ public class BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
 
+        // Check if ISBN is being changed and if the new ISBN already exists
+        if (!book.getIsbn().equals(bookDetails.getIsbn())) {
+            Optional<Book> existingBookWithIsbn = bookRepository.findByIsbn(bookDetails.getIsbn());
+            if (existingBookWithIsbn.isPresent()) {
+                throw new RuntimeException("Book with ISBN " + bookDetails.getIsbn() + " already exists");
+            }
+        }
+
         book.setTitle(bookDetails.getTitle());
         book.setAuthor(bookDetails.getAuthor());
         book.setIsbn(bookDetails.getIsbn());
@@ -91,4 +99,3 @@ public class BookService {
         bookRepository.delete(book);
     }
 }
-
